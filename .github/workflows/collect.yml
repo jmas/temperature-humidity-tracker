@@ -22,10 +22,14 @@ jobs:
       - name: Run Collector
         run: python collector.py
 
-      - name: Commit changes
+      - name: Commit and push changes
         run: |
-          git config --global user.name "Sensor Bot"
-          git config --global user.email "bot@github.com"
-          git add data.csv chart_data.json
-          git commit -m "Update sensors: $(date)" || echo "No changes"
-          git push
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Перевіряємо, чи існують файли перед додаванням
+          [ -f data.csv ] && git add data.csv
+          [ -f chart_data.json ] && git add chart_data.json
+
+          # Комітимо лише якщо є зміни, щоб уникнути помилки "nothing to commit"
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update sensor data: $(date)" && git push)
