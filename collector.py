@@ -22,26 +22,30 @@ TIMEOUT = 60
 data_processed = False
 
 def update_storage(t_time, temp, hum, press):
-    """Записує дані в CSV та JSON"""
+    """Оновлює CSV та JSON файли"""
+    # 1. Додаємо в CSV, тільки якщо запису ще немає
+    new_record = True
     if os.path.exists(CSV_FILE):
         with open(CSV_FILE, 'r') as f:
-            content = f.read()
-            if t_time in content:
-                print(f"Запис за {t_time} вже існує. Пропускаю.")
-                return False
+            if t_time in f.read():
+                print(f"DEBUG: Запис за {t_time} вже є. Пропускаю запис в CSV.")
+                new_record = False
 
-    file_exists = os.path.isfile(CSV_FILE)
-    with open(CSV_FILE, 'a', newline='') as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(["timestamp", "temperature", "humidity", "pressure"])
-        writer.writerow([t_time, temp, hum, press])
-    
-    # Читання для JSON
+    if new_record:
+        file_exists = os.path.isfile(CSV_FILE)
+        with open(CSV_FILE, 'a', newline='') as f:
+            writer = csv.writer(f)
+            if not file_exists:
+                writer.writerow(["timestamp", "temperature", "humidity", "pressure"])
+            writer.writerow([t_time, temp, hum, press])
+        print("DEBUG: Дані додано в CSV.")
+
+    # 2. ГЕНЕРУЄМО JSON ЗАВЖДИ (щоб файл точно був)
     history = []
-    with open(CSV_FILE, 'r') as f:
-        reader = csv.DictReader(f)
-        history = list(reader)
+    if os.path.exists(CSV_FILE):
+        with open(CSV_FILE, 'r') as f:
+            reader = csv.DictReader(f)
+            history = list(reader)
     
     recent = history[-MAX_CHART_POINTS:]
     chart_data = {
@@ -52,19 +56,21 @@ def update_storage(t_time, temp, hum, press):
                 "data": [float(row["temperature"]) for row in recent],
                 "borderColor": "#ff6384",
                 "tension": 0.3,
-                "fill": false
+                "fill": False  # ПЕРЕВІРТЕ: False з великої літери!
             },
             {
                 "label": "Вологість (%)",
                 "data": [float(row["humidity"]) for row in recent],
                 "borderColor": "#36a2eb",
                 "tension": 0.3,
-                "fill": false
+                "fill": False
             }
         ]
     }
-    with open(JSON_FILE, 'w') as f:
+    
+    with open(JSON_FILE, 'w', encoding='utf-8') as f:
         json.dump(chart_data, f, indent=2)
+    print(f"DEBUG: Файл {JSON_FILE} згенеровано.")
     return True
 
 def on_connect(client, userdata, flags, rc, properties=None):
