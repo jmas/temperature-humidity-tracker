@@ -1,0 +1,25 @@
+{
+  "labels": [
+    "2026-01-15T22:02:08"
+  ],
+  "datasets": [
+    {
+      "label": "\u0422\u0435\u043c\u043f\u0435\u0440\u0430\u0442\u0443\u0440\u0430 (\u00b0C)",
+      "data": [
+        7.9
+      ],
+      "borderColor": "#ff6384",
+      "tension": 0.3,
+      "fill": false
+    },
+    {
+      "label": "\u0412\u043e\u043b\u043e\u0433\u0456\u0441\u0442\u044c (%)",
+      "data": [
+        58.3
+      ],
+      "borderColor": "#36a2eb",
+      "tension": 0.3,
+      "fill": false
+    }
+  ]
+}
