@@ -12,7 +12,7 @@ MQTT_PORT = 8883
 MQTT_USER = "website"
 MQTT_PASS = "SKQCWqw6e8JW6Gj"
 # УВАГА: Переконайтеся, що tasmota - це ваш Topic з налаштувань MQTT в Tasmota
-MQTT_TOPIC = "tele/tasmota/SENSOR" 
+MQTT_TOPIC = "tele/tasmota_8D7614/SENSOR" 
 
 CSV_FILE = "data.csv"
 JSON_FILE = "chart_data.json"
