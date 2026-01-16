@@ -1,23 +1,32 @@
 name: Collect Sensor Data
+
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    # Використовуємо нестандартну хвилину (наприклад, 7-му),
+    # щоб менше стояти у черзі з іншими користувачами
+    - cron: "7,37 * * * *"
   workflow_dispatch:
+
+# Додаємо права на запис у репозиторій
+permissions:
+  contents: write
 
 jobs:
   collect:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Оновлено до v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Оновлено до v5
         with:
-          python-version: "3.x"
+          python-version: "3.10" # Краще вказати конкретну мінорну версію
 
       - name: Install Dependencies
-        run: pip install paho-mqtt
+        run: |
+          python -m pip install --upgrade pip
+          pip install paho-mqtt
 
       - name: Run Collector
         run: python collector.py
@@ -27,9 +36,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Перевіряємо, чи існують файли перед додаванням
-          [ -f data.csv ] && git add data.csv
-          [ -f chart_data.json ] && git add chart_data.json
+          # Додаємо всі змінені файли даних
+          git add data.csv chart_data.json || echo "No files to add"
 
-          # Комітимо лише якщо є зміни, щоб уникнути помилки "nothing to commit"
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update sensor data: $(date)" && git push)
+          # Перевірка наявності змін перед комітом
+          if ! git diff --cached --quiet; then
+            git commit -m "Update sensor data: $(date -u)"
+            git push
+          else
+            echo "No changes detected, skipping commit."
+          fi
