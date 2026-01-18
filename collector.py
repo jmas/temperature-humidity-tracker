@@ -64,6 +64,13 @@ def update_storage(t_time, temp, hum, press):
                 "borderColor": "#36a2eb",
                 "tension": 0.3,
                 "fill": False
+            },
+            {
+                "label": "Тиск (hPa)",
+                "data": [float(row["pressure"]) for row in recent],
+                "borderColor": "#4bc0c0",
+                "tension": 0.3,
+                "fill": False
             }
         ]
     }
